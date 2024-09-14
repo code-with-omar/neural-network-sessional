@@ -1,0 +1,1282 @@
+Explanation:
+import numpy as np
+
+Purpose: Imports the NumPy library, a fundamental package for numerical computing in Python.
+Usage: NumPy provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays efficiently.
+Alias: np is a common alias for NumPy, making it easier to reference its functions (e.g., np.array, np.dot).
+import matplotlib.pyplot as plt
+
+Purpose: Imports the pyplot module from Matplotlib, a plotting library.
+Usage: pyplot provides a MATLAB-like interface for creating static, interactive, and animated visualizations in Python.
+Alias: plt is a conventional alias, allowing for concise code when generating plots (e.g., plt.plot, plt.show).
+2. Generating Synthetic Data
+python
+Copy code
+# Generate synthetic data
+np.random.seed(42)
+X = np.random.rand(100, 1) * 10  # 100 data points
+y = 2.5 * X + np.random.randn(100, 1)  # Linear relation with noise
+Explanation:
+np.random.seed(42)
+
+Purpose: Sets the seed for NumPy's random number generator.
+Reason: Ensures reproducibility. Using the same seed will produce the same random numbers every time the code is run.
+Seed Value: 42 is arbitrary; any integer can be used.
+X = np.random.rand(100, 1) * 10
+
+Function: np.random.rand(d0, d1, ..., dn)
+Generates an array of shape (100, 1) with random samples from a uniform distribution over [0, 1).
+Operation: Multiplying by 10 scales the data to the range [0, 10).
+Result: X is a 100x1 matrix (or column vector) containing 100 random data points between 0 and 10.
+y = 2.5 * X + np.random.randn(100, 1)
+
+Operation:
+
+2.5 * X: Scales each element in X by 2.5, establishing a linear relationship.
+np.random.randn(100, 1): Generates 100 random samples from a standard normal distribution (mean = 0, standard deviation = 1), adding noise to the linear relationship.
+Result: y is a 100x1 matrix representing the target values, following the equation:
+
+𝑦
+=
+2.5
+𝑋
++
+𝜖
+y=2.5X+ϵ
+Where:
+
+𝑋
+X is the input feature.
+𝜖
+ϵ is Gaussian noise (
+𝜖
+∼
+𝑁
+(
+0
+,
+1
+)
+ϵ∼N(0,1)).
+Mathematical Concepts:
+Uniform Distribution (np.random.rand):
+
+Definition: A distribution where all outcomes are equally likely within a specified range.
+Usage in Code: Generates input features (X) uniformly distributed between 0 and 10.
+Standard Normal Distribution (np.random.randn):
+
+Definition: A normal (Gaussian) distribution with a mean of 0 and a standard deviation of 1.
+Usage in Code: Adds randomness (noise) to the target variable (y) to simulate real-world data imperfections.
+Linear Relationship:
+
+Equation: 
+𝑦
+=
+𝑚
+𝑥
++
+𝑐
+y=mx+c, where:
+𝑚
+m is the slope (2.5 in this case).
+𝑐
+c is the intercept (0 in this case, as it's not added explicitly).
+Purpose: Establishes a straightforward relationship between X and y, which is ideal for linear regression models.
+3. Implementing Batch Gradient Descent
+python
+Copy code
+# Delta Learning Rule implementation for Batch Gradient Descent
+class BatchGradientDescent:
+    def __init__(self, learning_rate=0.01, n_iterations=1000):
+        self.learning_rate = learning_rate
+        self.n_iterations = n_iterations
+        self.weights = None
+        self.bias = None
+Explanation:
+Class Definition:
+
+class BatchGradientDescent:
+Defines a new class named BatchGradientDescent.
+This class encapsulates the Batch Gradient Descent algorithm for training a linear regression model using the delta learning rule.
+Constructor Method (__init__):
+
+Parameters:
+learning_rate=0.01: Sets the default learning rate (
+𝜂
+η) to 0.01.
+Learning Rate (
+𝜂
+η): Determines the size of the steps taken during the weight updates. A smaller 
+𝜂
+η means smaller steps, potentially requiring more iterations but offering more precision.
+n_iterations=1000: Sets the default number of iterations (epochs) to 1000.
+Iterations (Epochs): The number of times the entire dataset is used to update the model's parameters.
+Instance Variables:
+self.learning_rate: Stores the learning rate.
+self.n_iterations: Stores the number of iterations.
+self.weights: Initialized to None; will store the model's weights after training.
+self.bias: Initialized to None; will store the model's bias after training.
+python
+Copy code
+    def fit(self, X, y):
+        m, n = X.shape
+        self.weights = np.zeros((n, 1))
+        self.bias = 0
+        self.loss_history = []
+Explanation:
+Method Definition:
+
+def fit(self, X, y):
+Defines the fit method, which trains the model using the provided data (X and y).
+Data Dimensions:
+
+m, n = X.shape
+Unpacks the shape of X into:
+m: Number of samples (100 in this case).
+n: Number of features (1 in this case).
+Initializing Parameters:
+
+self.weights = np.zeros((n, 1))
+Initializes the weights vector to zeros.
+Shape: (n, 1) ensures compatibility for matrix multiplication with X.
+self.bias = 0
+Initializes the bias term to zero.
+Tracking Loss:
+
+self.loss_history = []
+Initializes an empty list to store the loss value at each iteration, useful for monitoring convergence.
+python
+Copy code
+        for _ in range(self.n_iterations):
+            y_pred = X.dot(self.weights) + self.bias
+            error = y_pred - y
+            loss = np.mean(error ** 2)
+            self.loss_history.append(loss)
+Explanation:
+Training Loop:
+
+for _ in range(self.n_iterations):
+Iterates n_iterations times to update the model's parameters.
+The underscore (_) is used as a throwaway variable since the loop index isn't needed.
+Predictions:
+
+y_pred = X.dot(self.weights) + self.bias
+Computes the predicted values (y_pred) using the current weights and bias.
+Matrix Multiplication (X.dot(self.weights)):
+Multiplies the input features X (shape (100, 1)) with weights (shape (1, 1)) to produce predictions.
+Adding Bias:
+Adds the bias term to each prediction, allowing the model to fit data not passing through the origin.
+Error Calculation:
+
+error = y_pred - y
+Computes the difference between the predicted values and the actual target values.
+Error Vector (error):
+Represents the residuals or deviations of the predictions from the true values.
+Loss Calculation:
+
+loss = np.mean(error ** 2)
+Calculates the Mean Squared Error (MSE) loss.
+Mean Squared Error (MSE):
+Defined as:
+
+MSE
+=
+1
+𝑚
+∑
+𝑖
+=
+1
+𝑚
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+2
+MSE= 
+m
+1
+​
+  
+i=1
+∑
+m
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ ) 
+2
+ 
+Purpose: Measures the average squared difference between predicted and actual values, serving as a metric for the model's performance.
+
+Why Squared Error?
+
+Penalizes larger errors more severely.
+Differentiable, making it suitable for gradient-based optimization.
+Recording Loss:
+
+self.loss_history.append(loss)
+Stores the current loss value in loss_history for later analysis or visualization.
+python
+Copy code
+            # Gradient calculation
+            dw = (1/m) * X.T.dot(error)
+            db = (1/m) * np.sum(error)
+Explanation:
+Gradient Calculation:
+
+Purpose: Compute the gradients of the loss function with respect to the weights and bias. These gradients indicate the direction in which the parameters should be adjusted to minimize the loss.
+Gradient with Respect to Weights (dw):
+
+dw = (1/m) * X.T.dot(error)
+Explanation:
+X.T: Transposes the input matrix X (shape (100, 1)) to (1, 100).
+X.T.dot(error): Performs matrix multiplication between X.T and error (both of compatible shapes), resulting in a gradient vector.
+(1/m): Averages the gradient over all samples.
+Mathematical Derivation:
+Given the MSE loss:
+
+MSE
+=
+1
+𝑚
+∑
+𝑖
+=
+1
+𝑚
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+2
+MSE= 
+m
+1
+​
+  
+i=1
+∑
+m
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ ) 
+2
+ 
+The gradient of MSE with respect to weights (
+∂
+MSE
+∂
+𝑤
+∂w
+∂MSE
+​
+ ) is:
+
+∂
+MSE
+∂
+𝑤
+=
+2
+𝑚
+𝑋
+𝑇
+(
+𝑦
+pred
+−
+𝑦
+)
+∂w
+∂MSE
+​
+ = 
+m
+2
+​
+ X 
+T
+ (y 
+pred
+​
+ −y)
+Note: The factor of 2 is often absorbed into the learning rate, hence it's omitted here.
+
+Gradient with Respect to Bias (db):
+
+db = (1/m) * np.sum(error)
+Explanation:
+np.sum(error): Sums all the residuals.
+(1/m): Averages the gradient over all samples.
+Mathematical Derivation:
+The gradient of MSE with respect to bias (
+∂
+MSE
+∂
+𝑏
+∂b
+∂MSE
+​
+ ) is:
+
+∂
+MSE
+∂
+𝑏
+=
+2
+𝑚
+∑
+𝑖
+=
+1
+𝑚
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+∂b
+∂MSE
+​
+ = 
+m
+2
+​
+  
+i=1
+∑
+m
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ )
+Again, the factor of 2 is typically absorbed into the learning rate.
+
+Mathematical Concepts:
+Gradient:
+
+Definition: A vector of partial derivatives indicating the direction and rate of fastest increase of a function.
+Role in Optimization: Used to update model parameters in the direction that minimizes the loss function.
+Partial Derivatives:
+
+Definition: Derivatives of a function with respect to one variable while keeping others constant.
+Usage: Calculate how changes in each parameter (weights and bias) affect the loss.
+Matrix Multiplication (X.T.dot(error)):
+
+Purpose: Efficiently computes the sum of the product of input features and errors across all samples, which is essential for calculating gradients in batch methods.
+python
+Copy code
+            # Update weights and bias
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
+Explanation:
+Parameter Updates:
+
+Purpose: Adjust the weights and bias to minimize the loss function based on the computed gradients.
+Weights Update:
+
+self.weights -= self.learning_rate * dw
+Operation: Subtracts the product of the learning rate and the gradient from the current weights.
+
+Mathematical Equation:
+
+𝑤
+new
+=
+𝑤
+old
+−
+𝜂
+⋅
+∂
+MSE
+∂
+𝑤
+w 
+new
+​
+ =w 
+old
+​
+ −η⋅ 
+∂w
+∂MSE
+​
+ 
+Bias Update:
+
+self.bias -= self.learning_rate * db
+Operation: Subtracts the product of the learning rate and the gradient from the current bias.
+
+Mathematical Equation:
+
+𝑏
+new
+=
+𝑏
+old
+−
+𝜂
+⋅
+∂
+MSE
+∂
+𝑏
+b 
+new
+​
+ =b 
+old
+​
+ −η⋅ 
+∂b
+∂MSE
+​
+ 
+Mathematical Concepts:
+Gradient Descent Update Rule:
+
+Definition: An iterative optimization algorithm used to find the minimum of a function.
+
+Equation:
+
+𝜃
+new
+=
+𝜃
+old
+−
+𝜂
+⋅
+∇
+𝐸
+(
+𝜃
+)
+θ 
+new
+​
+ =θ 
+old
+​
+ −η⋅∇E(θ)
+Where:
+
+𝜃
+θ represents the parameters (weights and bias).
+𝜂
+η is the learning rate.
+∇
+𝐸
+(
+𝜃
+)
+∇E(θ) is the gradient of the loss function with respect to 
+𝜃
+θ.
+Learning Rate (
+𝜂
+η):
+
+Role: Controls the step size during parameter updates.
+Trade-Off:
+Too Large: May cause overshooting the minimum.
+Too Small: Leads to slow convergence.
+Subtraction (-=):
+
+Purpose: Updates the parameters in the direction that reduces the loss.
+python
+Copy code
+        return self.weights, self.bias
+Explanation:
+Return Statement:
+Purpose: After completing all iterations, returns the optimized weights and bias.
+Usage: Allows access to the trained parameters for making predictions or further analysis.
+4. Implementing Stochastic Gradient Descent
+python
+Copy code
+# Delta Learning Rule implementation for Stochastic Gradient Descent
+class StochasticGradientDescent:
+    def __init__(self, learning_rate=0.01, n_iterations=1000):
+        self.learning_rate = learning_rate
+        self.n_iterations = n_iterations
+        self.weights = None
+        self.bias = None
+Explanation:
+Class Definition:
+
+class StochasticGradientDescent:
+Defines a new class named StochasticGradientDescent.
+Encapsulates the Stochastic Gradient Descent (SGD) algorithm for training a linear regression model using the delta learning rule.
+Constructor Method (__init__):
+
+Parameters:
+learning_rate=0.01: Sets the default learning rate (
+𝜂
+η) to 0.01.
+n_iterations=1000: Sets the default number of iterations (epochs) to 1000.
+Instance Variables:
+self.learning_rate: Stores the learning rate.
+self.n_iterations: Stores the number of iterations.
+self.weights: Initialized to None; will store the model's weights after training.
+self.bias: Initialized to None; will store the model's bias after training.
+python
+Copy code
+    def fit(self, X, y):
+        m, n = X.shape
+        self.weights = np.zeros((n, 1))
+        self.bias = 0
+        self.loss_history = []
+Explanation:
+Method Definition:
+
+def fit(self, X, y):
+Defines the fit method, which trains the model using the provided data (X and y).
+Data Dimensions:
+
+m, n = X.shape
+Unpacks the shape of X into:
+m: Number of samples (100 in this case).
+n: Number of features (1 in this case).
+Initializing Parameters:
+
+self.weights = np.zeros((n, 1))
+Initializes the weights vector to zeros.
+Shape: (n, 1) ensures compatibility for matrix multiplication with X.
+self.bias = 0
+Initializes the bias term to zero.
+Tracking Loss:
+
+self.loss_history = []
+Initializes an empty list to store the loss value at each step.
+python
+Copy code
+        for _ in range(self.n_iterations):
+            for i in range(m):
+                xi = X[i]
+                yi = y[i]
+                
+                # Prediction
+                y_pred = xi.dot(self.weights) + self.bias
+                error = y_pred - yi
+                loss = np.mean(error ** 2)
+                self.loss_history.append(loss)
+Explanation:
+Training Loop:
+
+for _ in range(self.n_iterations):
+Outer loop iterates n_iterations times, representing epochs.
+Inner Loop (Stochastic Aspect):
+
+for i in range(m):
+Iterates over each sample in the dataset individually.
+This is the key difference between Batch Gradient Descent and Stochastic Gradient Descent:
+Batch Gradient Descent: Updates parameters after processing the entire dataset.
+Stochastic Gradient Descent: Updates parameters after processing each individual sample.
+Processing Each Sample:
+
+xi = X[i]
+Extracts the 
+𝑖
+𝑡
+ℎ
+i 
+th
+  input feature vector.
+Shape: (1,), representing a single data point.
+yi = y[i]
+Extracts the 
+𝑖
+𝑡
+ℎ
+i 
+th
+  target value.
+Prediction:
+
+y_pred = xi.dot(self.weights) + self.bias
+Computes the predicted value for the 
+𝑖
+𝑡
+ℎ
+i 
+th
+  sample.
+Dot Product (xi.dot(self.weights)):
+Multiplies the input features with the weights.
+Shape Consideration: Ensures that the dimensions align for matrix multiplication.
+Adding Bias:
+Incorporates the bias term into the prediction.
+Error Calculation:
+
+error = y_pred - yi
+Computes the residual (difference) between the predicted and actual target value for the 
+𝑖
+𝑡
+ℎ
+i 
+th
+  sample.
+Loss Calculation:
+
+loss = np.mean(error ** 2)
+Calculates the Mean Squared Error (MSE) for the current sample.
+Since there's only one sample, np.mean(error ** 2) is equivalent to (error ** 2).
+Recording Loss:
+
+self.loss_history.append(loss)
+Stores the current loss value in loss_history for later analysis or visualization.
+Mathematical Concepts:
+Stochastic Gradient Descent (SGD):
+
+Definition: An optimization method where the gradient is estimated using a single data point (or a small subset) at each iteration.
+Advantages:
+Can converge faster for large datasets.
+Introduces noise, which can help escape local minima.
+Disadvantages:
+Loss function can oscillate due to the noisy gradient estimates.
+May not converge exactly to the minimum.
+Single Sample Gradient:
+
+Explanation: Instead of averaging gradients over the entire dataset (as in BGD), SGD uses the gradient from one sample to update parameters, leading to more frequent but noisier updates.
+python
+Copy code
+                # Gradient calculation
+                dw = xi.T.dot(error)
+                db = np.sum(error)
+Explanation:
+Gradient Calculation:
+
+Purpose: Compute the gradients of the loss function with respect to the weights and bias for the current sample.
+Gradient with Respect to Weights (dw):
+
+dw = xi.T.dot(error)
+Explanation:
+
+xi.T: Transposes the input vector xi. However, since xi is a 1D array with shape (1,), transposing has no effect.
+xi.T.dot(error): Computes the product of the input features and the error.
+Mathematical Equation:
+
+∂
+MSE
+∂
+𝑤
+=
+2
+⋅
+𝑥
+𝑖
+⋅
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+∂w
+∂MSE
+​
+ =2⋅x 
+i
+​
+ ⋅(y 
+pred,i
+​
+ −y 
+i
+​
+ )
+Note: The factor of 2 is typically absorbed into the learning rate, hence it's omitted here.
+Gradient with Respect to Bias (db):
+
+db = np.sum(error)
+Explanation:
+
+np.sum(error): Since there's only one sample, this is equivalent to error itself.
+Mathematical Equation:
+
+∂
+MSE
+∂
+𝑏
+=
+2
+⋅
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+∂b
+∂MSE
+​
+ =2⋅(y 
+pred,i
+​
+ −y 
+i
+​
+ )
+Note: Similar to the weight gradient, the factor of 2 is absorbed into the learning rate.
+Mathematical Concepts:
+Partial Derivatives for Single Sample:
+Weights (
+𝑤
+w):
+
+∂
+MSE
+∂
+𝑤
+=
+2
+𝑚
+𝑥
+𝑖
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+∂w
+∂MSE
+​
+ = 
+m
+2
+​
+ x 
+i
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ )
+For SGD with 
+𝑚
+=
+1
+m=1, it simplifies to 
+2
+𝑥
+𝑖
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+2x 
+i
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ ).
+Bias (
+𝑏
+b):
+
+∂
+MSE
+∂
+𝑏
+=
+2
+𝑚
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+∂b
+∂MSE
+​
+ = 
+m
+2
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ )
+For SGD with 
+𝑚
+=
+1
+m=1, it simplifies to 
+2
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+2(y 
+pred,i
+​
+ −y 
+i
+​
+ ).
+python
+Copy code
+                # Update weights and bias
+                self.weights -= self.learning_rate * dw
+                self.bias -= self.learning_rate * db
+Explanation:
+Parameter Updates:
+
+Purpose: Adjust the weights and bias to minimize the loss function based on the computed gradients from the current sample.
+Weights Update:
+
+self.weights -= self.learning_rate * dw
+Operation: Subtracts the product of the learning rate and the gradient from the current weights.
+
+Mathematical Equation:
+
+𝑤
+new
+=
+𝑤
+old
+−
+𝜂
+⋅
+∂
+MSE
+∂
+𝑤
+w 
+new
+​
+ =w 
+old
+​
+ −η⋅ 
+∂w
+∂MSE
+​
+ 
+Bias Update:
+
+self.bias -= self.learning_rate * db
+Operation: Subtracts the product of the learning rate and the gradient from the current bias.
+
+Mathematical Equation:
+
+𝑏
+new
+=
+𝑏
+old
+−
+𝜂
+⋅
+∂
+MSE
+∂
+𝑏
+b 
+new
+​
+ =b 
+old
+​
+ −η⋅ 
+∂b
+∂MSE
+​
+ 
+Mathematical Concepts:
+Parameter Update Rule in SGD:
+Definition: Similar to Batch Gradient Descent, but updates are performed more frequently (after each sample).
+
+Equation:
+
+𝜃
+new
+=
+𝜃
+old
+−
+𝜂
+⋅
+∇
+𝐸
+(
+𝜃
+;
+𝑥
+𝑖
+,
+𝑦
+𝑖
+)
+θ 
+new
+​
+ =θ 
+old
+​
+ −η⋅∇E(θ;x 
+i
+​
+ ,y 
+i
+​
+ )
+Where:
+
+∇
+𝐸
+(
+𝜃
+;
+𝑥
+𝑖
+,
+𝑦
+𝑖
+)
+∇E(θ;x 
+i
+​
+ ,y 
+i
+​
+ ) is the gradient of the loss function for the 
+𝑖
+𝑡
+ℎ
+i 
+th
+  sample.
+python
+Copy code
+        return self.weights, self.bias
+Explanation:
+Return Statement:
+Purpose: After completing all iterations, returns the optimized weights and bias.
+Usage: Allows access to the trained parameters for making predictions or further analysis.
+5. Training the Models
+python
+Copy code
+# Instantiate and train both models
+batch_model = BatchGradientDescent(learning_rate=0.01, n_iterations=1000)
+batch_weights, batch_bias = batch_model.fit(X, y)
+
+sgd_model = StochasticGradientDescent(learning_rate=0.01, n_iterations=1000)
+sgd_weights, sgd_bias = sgd_model.fit(X, y)
+Explanation:
+Instantiating Batch Gradient Descent Model:
+
+batch_model = BatchGradientDescent(learning_rate=0.01, n_iterations=1000)
+Creates an instance of the BatchGradientDescent class with:
+learning_rate set to 0.01.
+n_iterations set to 1000.
+Training Batch Gradient Descent Model:
+
+batch_weights, batch_bias = batch_model.fit(X, y)
+Calls the fit method on batch_model with the synthetic data (X and y).
+Receives the optimized weights and bias after training.
+Result:
+batch_weights: Trained weights from Batch Gradient Descent.
+batch_bias: Trained bias from Batch Gradient Descent.
+Instantiating Stochastic Gradient Descent Model:
+
+sgd_model = StochasticGradientDescent(learning_rate=0.01, n_iterations=1000)
+Creates an instance of the StochasticGradientDescent class with:
+learning_rate set to 0.01.
+n_iterations set to 1000.
+Training Stochastic Gradient Descent Model:
+
+sgd_weights, sgd_bias = sgd_model.fit(X, y)
+Calls the fit method on sgd_model with the synthetic data (X and y).
+Receives the optimized weights and bias after training.
+Result:
+sgd_weights: Trained weights from Stochastic Gradient Descent.
+sgd_bias: Trained bias from Stochastic Gradient Descent.
+Mathematical Concepts:
+Model Instantiation:
+
+Definition: Creating an object from a class, initializing it with specific parameters (learning rate and number of iterations).
+Training Process:
+
+Objective: Adjust model parameters (weights and bias) to minimize the loss function using the chosen optimization algorithm (Batch GD or SGD).
+6. Plotting the Loss History
+python
+Copy code
+# Plotting the loss history
+plt.figure(figsize=(12, 6))
+plt.plot(batch_model.loss_history, label='Batch Gradient Descent Loss', color='blue')
+plt.plot(sgd_model.loss_history, label='Stochastic Gradient Descent Loss', color='orange', alpha=0.6)
+plt.title('Loss History: Batch vs Stochastic Gradient Descent')
+plt.xlabel('Iteration')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid()
+plt.show()
+Explanation:
+Creating a New Figure:
+
+plt.figure(figsize=(12, 6))
+Initializes a new figure for plotting.
+Parameters:
+figsize=(12, 6): Sets the size of the figure to 12 inches wide and 6 inches tall.
+Plotting Batch Gradient Descent Loss:
+
+plt.plot(batch_model.loss_history, label='Batch Gradient Descent Loss', color='blue')
+Plots the loss history recorded during Batch Gradient Descent training.
+Parameters:
+batch_model.loss_history: List of loss values recorded at each iteration.
+label='Batch Gradient Descent Loss': Label for the legend.
+color='blue': Sets the line color to blue.
+Plotting Stochastic Gradient Descent Loss:
+
+plt.plot(sgd_model.loss_history, label='Stochastic Gradient Descent Loss', color='orange', alpha=0.6)
+Plots the loss history recorded during Stochastic Gradient Descent training.
+Parameters:
+sgd_model.loss_history: List of loss values recorded at each update (per sample).
+label='Stochastic Gradient Descent Loss': Label for the legend.
+color='orange': Sets the line color to orange.
+alpha=0.6: Sets the transparency level to 60%, making overlapping lines more distinguishable.
+Adding Title and Labels:
+
+plt.title('Loss History: Batch vs Stochastic Gradient Descent')
+Sets the title of the plot.
+plt.xlabel('Iteration')
+Labels the x-axis as "Iteration".
+plt.ylabel('Loss')
+Labels the y-axis as "Loss".
+Adding Legend and Grid:
+
+plt.legend()
+Displays the legend on the plot, showing which line corresponds to which algorithm.
+plt.grid()
+Adds a grid to the plot for better readability.
+Displaying the Plot:
+
+plt.show()
+Renders and displays the plot.
+Mathematical Concepts:
+Loss History:
+
+Definition: A record of the loss function's value at each iteration during training.
+Purpose: Visualizes how the loss decreases over time, indicating the convergence behavior of the optimization algorithm.
+Visualization:
+
+Importance: Helps in comparing the performance of different optimization algorithms (Batch GD vs. SGD) by showing their respective convergence rates and stability.
+Summary of Key Concepts and Mathematical Terms
+1. Delta Learning Rule
+Definition: A simple form of the gradient descent algorithm used to train neural networks by updating weights in the direction that reduces the error.
+
+Formula:
+
+Δ
+𝑤
+=
+−
+𝜂
+∂
+𝐸
+∂
+𝑤
+Δw=−η 
+∂w
+∂E
+​
+ 
+Where:
+
+Δ
+𝑤
+Δw: Change in weight.
+𝜂
+η: Learning rate.
+∂
+𝐸
+∂
+𝑤
+∂w
+∂E
+​
+ : Gradient of the error with respect to the weight.
+2. Gradient Descent Variants
+Batch Gradient Descent (BGD):
+
+Description: Computes the gradient using the entire dataset before updating the parameters.
+Pros:
+Stable convergence.
+Precise gradient estimation.
+Cons:
+Computationally expensive for large datasets.
+Slow updates.
+Stochastic Gradient Descent (SGD):
+
+Description: Computes the gradient using a single sample and updates parameters immediately.
+Pros:
+Faster updates, especially with large datasets.
+Can escape local minima due to noise.
+Cons:
+Noisy updates, leading to oscillations.
+May not converge exactly to the minimum.
+3. Key Mathematical Operations
+Matrix Multiplication (dot product):
+
+Purpose: Combines inputs and weights to produce predictions.
+Properties: Requires compatible dimensions; for 
+𝐴
+A of shape 
+(
+𝑚
+,
+𝑛
+)
+(m,n) and 
+𝐵
+B of shape 
+(
+𝑛
+,
+𝑝
+)
+(n,p), the result is 
+(
+𝑚
+,
+𝑝
+)
+(m,p).
+Mean Squared Error (MSE):
+
+Definition: The average of the squares of the errors between predicted and actual values.
+
+Formula:
+
+MSE
+=
+1
+𝑚
+∑
+𝑖
+=
+1
+𝑚
+(
+𝑦
+pred
+,
+𝑖
+−
+𝑦
+𝑖
+)
+2
+MSE= 
+m
+1
+​
+  
+i=1
+∑
+m
+​
+ (y 
+pred,i
+​
+ −y 
+i
+​
+ ) 
+2
+ 
+Purpose: Measures the quality of a predictor by quantifying the average squared difference between predicted and actual values.
+
+Partial Derivatives:
+
+Definition: The derivative of the loss function with respect to each parameter (weight or bias), holding other parameters constant.
+Role: Indicates the direction and magnitude by which to adjust each parameter to minimize the loss.
+Learning Rate (
+𝜂
+η):
+
+Definition: A hyperparameter that controls the step size during parameter updates.
+Impact:
+Too High: Can cause overshooting, leading to divergence.
+Too Low: Can result in slow convergence, potentially getting stuck in local minima.
+Conclusion
+This code demonstrates the implementation of the delta learning rule using both Batch Gradient Descent and Stochastic Gradient Descent for a simple linear regression problem. By generating synthetic data with a known linear relationship and some added noise, the models aim to learn the underlying parameters (weights and bias) that best fit the data.
+
+Key Takeaways:
+Batch Gradient Descent:
+
+Uses the entire dataset to compute gradients.
+Offers stable and precise convergence but can be computationally intensive for large datasets.
+Stochastic Gradient Descent:
+
+Uses individual samples to compute gradients.
+Provides faster updates and can handle large or streaming datasets efficiently but may suffer from noisy convergence.
+Visualization:
+
+Plotting loss histories helps in understanding and comparing the convergence behaviors of different optimization algorithms.
+Understanding these foundational concepts is crucial for effectively training machine learning models and selecting appropriate optimization strategies based on the problem at hand.
